@@ -1,0 +1,62 @@
+# Project Overview
+
+This project demonstrates a production-style containerised application deployed on AWS using ECS, Terraform, and CI/CD.  
+
+The primary focus is **infrastructure, automation, and deployment**, not application development.
+
+For the application layer, an existing lightweight open-source app is used as a deployable artifact.
+
+---
+
+## Application Choice
+
+**App:** Memos  
+
+**Reason for choice:**  
+
+Memos is a simple, self-hosted application with minimal configuration and predictable HTTP behaviour, making it well-suited for an infrastructure-focused project.
+
+The application is distributed as a Docker image, which aligns well with container-first deployment workflows.
+
+---
+
+## Phase 1 – Local Application Verification
+
+**Goal:** Verify that the application runs locally and is accessible before any infrastructure or automation work.
+
+### Local Setup
+
+The application was run locally using the official Docker image:
+
+```bash
+docker run -d \
+  --name memos \
+  -p 5230:5230 \
+  -v ~/.memos:/var/opt/memos \
+  neosmemo/memos:stable
+
+ ```
+
+### Verification
+
+The application was accessed successfully via a web browser at:
+
+http://localhost:5230
+
+An HTTP request was also made to a non-specific path to confirm the server responds when running:
+
+curl http://localhost:5230/health
+
+Although `/health` is not a dedicated health endpoint, the request returned a successful HTTP response, confirming that the application server is running and responding to requests.
+
+### Result
+
+- Application starts successfully in a Docker container
+- HTTP server responds consistently when the app is running
+- App accessible locally on port **5230**
+
+**Confirms:**
+
+- Docker is the required runtime
+- The application exposes an HTTP interface
+- The app can be validated via HTTP responses
