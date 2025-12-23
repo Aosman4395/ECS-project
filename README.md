@@ -80,4 +80,4 @@ The container was verified to be running successfully using the following comman
 docker ps
 ```
 
-![container-running](ECS-project/screenshots/container-running.png)
+![container-running](screenshots/container-running.png)
