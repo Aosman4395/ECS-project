@@ -60,3 +60,24 @@ Although `/health` is not a dedicated health endpoint, the request returned a su
 - Docker is the required runtime
 - The application exposes an HTTP interface
 - The app can be validated via HTTP responses
+
+## Phase 2 – Dockerisation & Local Validation
+
+The application was successfully containerised and validated locally using Docker.
+
+### Docker Image Build
+
+The Docker image was built from the repository root using the following command:
+
+```bash
+docker build -t memos-local .
+```
+### Verification
+
+The container was verified to be running successfully using the following command:
+
+```bash
+docker ps
+```
+
+![container-running](ECS-project/screenshots/container-running.png)
