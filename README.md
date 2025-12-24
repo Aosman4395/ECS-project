@@ -81,3 +81,25 @@ docker ps
 ```
 
 ![container-running](screenshots/container-running.png)
+
+## Phase 3 – Container Image Stored in Amazon ECR
+
+In this phase, the application Docker image was pushed to Amazon Elastic Container Registry (ECR), making it available for deployment using AWS ECS.
+
+### Amazon ECR Overview
+
+Amazon ECR is used as a private container registry to securely store Docker images within AWS.  
+
+Storing the image in ECR allows ECS to pull and run the application independently of the local development environment.
+
+### Image Tag Used
+
+The image was pushed using the **`latest`** tag.
+
+This tag represents the **current stable version** of the application for this project and will be referenced in the ECS task definition in the next phase.
+
+### Verification (AWS Console)
+
+The successful image push was verified using the AWS Management Console.
+
+![ecr-push](screenshots/ecr-push.png)
