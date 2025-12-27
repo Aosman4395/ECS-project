@@ -152,7 +152,7 @@ This phase focuses on understanding how all AWS components integrate together wi
 
 ---
 
-### 🔍 Verification
+### Verification
 
 - ECS task is running and healthy.
 - Target group shows healthy targets.
