@@ -103,3 +103,70 @@ This tag represents the **current stable version** of the application for this p
 The successful image push was verified using the AWS Management Console.
 
 ![ecr-push](screenshots/ecr-push.png)
+
+## Phase 4 – Manual AWS Deployment (ClickOps)
+
+In this phase, the containerised application was manually deployed to AWS using the AWS Management Console (ClickOps).  
+This phase focuses on understanding how all AWS components integrate together without Infrastructure as Code.
+
+---
+
+### Tasks Completed
+
+- **Created an Amazon ECR repository**
+  - Used to store the production Docker image.
+  - The ECS service pulls the image directly from ECR at runtime.
+
+- **Created an Amazon ECS Cluster (Fargate)**
+  - Chose **AWS Fargate** to run containers serverlessly without managing EC2 instances.
+  - Provides automatic scaling and infrastructure abstraction.
+
+- **Created an ECS Task Definition**
+  - Defined container settings including:
+    - Image from Amazon ECR
+    - Container port `5230`
+    - CPU and memory allocation
+    - CloudWatch logging
+  - This acts as the blueprint for running the container.
+
+- **Set up an Application Load Balancer (ALB)**
+  - Internet-facing ALB created to route external traffic to ECS tasks.
+  - Listener configured for HTTP and HTTPS.
+  - Target group created to forward traffic to the container on port `5230`.
+
+- **Configured Security Groups**
+  - Inbound rules allow:
+    - HTTP (80)
+    - HTTPS (443)
+  - Ensures public access while maintaining controlled network boundaries.
+
+- **Configured DNS using Namecheap (instead of Route 53)**
+  - An existing domain was already managed via **Namecheap**.
+  - A **CNAME record** (`tm.<domain>`) was created pointing to the ALB DNS name.
+  - This replaces the need for Route 53 while achieving the same result.
+
+- **Attached an ACM Certificate for HTTPS**
+  - AWS Certificate Manager (ACM) used to provision a TLS certificate.
+  - Certificate attached to the ALB HTTPS listener.
+  - Enables secure HTTPS access to the application.
+
+---
+
+### 🔍 Verification
+
+- ECS task is running and healthy.
+- Target group shows healthy targets.
+- Application is accessible via the custom domain.
+- HTTPS is enabled and secured using ACM.
+
+---
+Application running via custom domain
+
+![domain](screenshots/domain.png)
+
+Application running securely over HTTPS (ACM enabled)
+
+![acm](screenshots/acm.png)
+
+
+
