@@ -30,6 +30,5 @@ jobs:
         run: |
           IMAGE_URI=304321521963.dkr.ecr.us-east-1.amazonaws.com/memos:${{ github.sha }}
 
-          docker build -t $IMAGE_URI app
+          docker build -t $IMAGE_URI .
           docker push $IMAGE_URI
-
