@@ -1,11 +1,11 @@
 # =========================
-# Build stage (frontend + backend together)
+# Build stage
 # =========================
 FROM golang:1.23-alpine
 
 WORKDIR /build
 
-# Install build dependencies
+# Build deps (CGO + SQLite + frontend)
 RUN apk add --no-cache \
     nodejs \
     npm \
@@ -14,56 +14,35 @@ RUN apk add --no-cache \
     build-base \
     sqlite-dev
 
-# Install pnpm
+# pnpm
 RUN npm install -g pnpm
 
-# Copy the entire ECS-project into /build
+# COPY CONTEXT
+# Build context = app/memos
+# So this copies go.mod, main.go, web/, scripts/
 COPY . .
 
 # -------------------------
-# Build frontend
+# Frontend
 # -------------------------
-# Based on your find command, web is likely here:
-WORKDIR /build/app/memos/web
+WORKDIR /build/web
 RUN pnpm install
 RUN pnpm release
 
 # -------------------------
-# Build backend
+# Backend
 # -------------------------
-# Move to where go.mod actually lives
-WORKDIR /build/app/memos
+WORKDIR /build
+
+# go.mod EXISTS HERE — this WILL work
 RUN go mod download
 
-# Build the binary and output it to /build/memos
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 \
-    go build -ldflags="-s -w" -o /build/memos .
-
+    go build -ldflags="-s -w" -o memos .
 
 # =========================
 # Runtime stage
 # =========================
 FROM alpine:latest
 
-# Install runtime dependencies for SQLite
-RUN apk add --no-cache tzdata sqlite-libs
-ENV TZ="UTC"
-
-WORKDIR /usr/local/memos
-
-# Copy the binary from the build stage root
-COPY --from=0 /build/memos /usr/local/memos/memos
-
-# Copy the entrypoint script (Adjusting path based on your nesting)
-COPY app/memos/scripts/entrypoint.sh /usr/local/memos/
-RUN chmod +x /usr/local/memos/entrypoint.sh
-
-# Data directory
-RUN mkdir -p /var/opt/memos
-VOLUME /var/opt/memos
-
-EXPOSE 5230
-ENV MEMOS_MODE=prod
-ENV MEMOS_PORT=5230
-
-ENTRYPOINT ["./entrypoint.sh", "./memos"]
+RUN apk add -
