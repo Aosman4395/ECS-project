@@ -78,6 +78,11 @@ resource "aws_ecs_service" "memos_service" {
   launch_type     = "FARGATE"
   desired_count   = 1
 
+  deployment_maximum_percent         = 200
+  deployment_minimum_healthy_percent = 100
+
+  health_check_grace_period_seconds = 60
+
   network_configuration {
     subnets         = var.subnet_ids
     security_groups = [aws_security_group.ecs_sg.id]
@@ -89,4 +94,12 @@ resource "aws_ecs_service" "memos_service" {
     container_name   = var.container_name
     container_port   = var.container_port
   }
+    lifecycle {
+    ignore_changes = [
+      desired_count,
+      task_definition,
+    ]
+
+  }
 }
+
