@@ -16,7 +16,7 @@ RUN apk add --no-cache \
 RUN npm install -g pnpm
 
 # Copy full Memos source
-COPY app/memos/ .
+COPY . .
 
 # -------------------------
 # Build frontend (THIS IS THE KEY)
@@ -46,7 +46,7 @@ ENV TZ="UTC"
 
 # Copy binary and entrypoint
 COPY --from=0 /build/memos /usr/local/memos/memos
-COPY app/memos/scripts/entrypoint.sh /usr/local/memos/
+COPY scripts/entrypoint.sh /usr/local/memos/
 RUN chmod +x /usr/local/memos/entrypoint.sh
 
 # Data directory
