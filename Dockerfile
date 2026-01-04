@@ -1,16 +1,19 @@
 # =========================
 # Build stage (frontend + backend together)
 # =========================
-FROM golang:1.25-alpine
+FROM golang:1.23-alpine
 
 WORKDIR /build
 
 # Install build dependencies
+# Added build-base and sqlite-dev for CGO/SQLite support
 RUN apk add --no-cache \
     nodejs \
     npm \
     git \
-    bash
+    bash \
+    build-base \
+    sqlite-dev
 
 # Install pnpm
 RUN npm install -g pnpm
@@ -19,19 +22,23 @@ RUN npm install -g pnpm
 COPY . .
 
 # -------------------------
-# Build frontend (THIS IS THE KEY)
+# Build frontend
 # -------------------------
 WORKDIR /build/web
 RUN pnpm install
 RUN pnpm release
 
 # -------------------------
-# Build backend (frontend now exists at web/dist)
+# Build backend
 # -------------------------
 WORKDIR /build
 RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-    go build -ldflags="-s -w" -o memos ./cmd/memos
+
+# KEY CHANGES HERE:
+# 1. CGO_ENABLED=1 (Required for SQLite)
+# 2. Build path changed from ./cmd/memos to .
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 \
+    go build -ldflags="-s -w" -o memos .
 
 
 # =========================
@@ -41,10 +48,11 @@ FROM alpine:latest
 
 WORKDIR /usr/local/memos
 
-RUN apk add --no-cache tzdata
+# Added sqlite-libs so the binary can find the database driver at runtime
+RUN apk add --no-cache tzdata sqlite-libs
 ENV TZ="UTC"
 
-# Copy binary and entrypoint
+# Copy binary and entrypoint from the build stage (index 0)
 COPY --from=0 /build/memos /usr/local/memos/memos
 COPY scripts/entrypoint.sh /usr/local/memos/
 RUN chmod +x /usr/local/memos/entrypoint.sh
@@ -57,5 +65,5 @@ EXPOSE 5230
 ENV MEMOS_MODE=prod
 ENV MEMOS_PORT=5230
 
+# This matches the binary name produced in the build stage
 ENTRYPOINT ["./entrypoint.sh", "./memos"]
-
