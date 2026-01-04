@@ -23,7 +23,7 @@ jobs:
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }} # You'll set this in GitHub Secrets
+          role-to-assume: arn:aws:iam::304321521963:role/github-actions-terraform
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -55,4 +55,4 @@ jobs:
         run: |
           echo "Waiting for ECS to stabilize..."
           sleep 60 
-          curl --fail https://tm.ahmedo.co.uk/health || exit 1
+          curl --fail https://tm.ahmedo.co.uk || exit 1
