@@ -14,7 +14,7 @@ RUN apk add --no-cache \
     build-base \
     sqlite-dev
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9
 
 # Copy entire repo (monorepo)
 COPY . .
