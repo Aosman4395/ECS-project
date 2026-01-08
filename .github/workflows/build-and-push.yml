@@ -3,10 +3,10 @@ name: "Memos Production Deploy"
 on:
   push:
     branches:
-      - main  # Triggers only when you push to the main branch
+      - main
 
 permissions:
-  id-token: write # Required for OIDC security
+  id-token: write
   contents: read
 
 env:
@@ -30,27 +30,25 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # STEP 1 & 2: Build, Tag with SHA, and Push to ECR
       - name: Build and Push Image
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -f Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG app/memos
+          # Build from the root (.) so Docker finds the /app folder structure
+          docker build -f Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      # STEP 3: Terraform Deploy
       - name: Terraform Setup
         uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init & Apply
-        working-directory: ./infra # Points to your infra folder
+        working-directory: ./infra
         run: |
           terraform init
           terraform apply -auto-approve -var="image_tag=${{ github.sha }}"
 
-      # STEP 4: Post-Deploy Check (Phase 7)
       - name: Health Check
         run: |
           echo "Waiting for ECS to stabilize..."
