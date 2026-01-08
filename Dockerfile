@@ -5,7 +5,7 @@ FROM golang:1.23-alpine
 
 WORKDIR /src
 
-# System dependencies (CGO + SQLite + frontend tooling)
+# System deps (CGO + SQLite + frontend tooling)
 RUN apk add --no-cache \
     nodejs \
     npm \
@@ -14,21 +14,23 @@ RUN apk add --no-cache \
     build-base \
     sqlite-dev
 
-# Pin pnpm to v9 (v10 has known CI build issues)
+# Pin pnpm to v9 (v10 has known issues)
 RUN npm install -g pnpm@9
 
-# Copy entire repository (build context = repo root)
+# Copy entire repo (build context = repo root)
 COPY . .
 
 # -------------------------
-# Build frontend (Memos uses pnpm from repo root)
+# Build frontend
+# package.json lives HERE
 # -------------------------
-WORKDIR /src/app/memos
+WORKDIR /src/app/memos/web
 RUN pnpm install
 RUN pnpm run build
 
 # -------------------------
 # Build backend
+# go.mod + main.go live HERE
 # -------------------------
 WORKDIR /src/app/memos
 RUN go mod download
@@ -50,7 +52,7 @@ WORKDIR /usr/local/memos
 # Copy compiled binary
 COPY --from=0 /memos_binary ./memos
 
-# Persistent data
+# Persistent data directory
 RUN mkdir -p /var/opt/memos
 VOLUME /var/opt/memos
 
@@ -62,3 +64,4 @@ ENV MEMOS_DATA=/var/opt/memos
 
 # Start Memos
 ENTRYPOINT ["/usr/local/memos/memos"]
+
