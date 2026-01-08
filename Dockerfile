@@ -1,13 +1,64 @@
- > [stage-0  7/11] RUN pnpm install:
-0.672  ERR_PNPM_NO_PKG_MANIFEST  No package.json found in /src/app/memos/web
-------
-Dockerfile:26
---------------------
-  24 |     # -------------------------
-  25 |     WORKDIR /src/app/memos/web
-  26 | >>> RUN pnpm install
-  27 |     RUN pnpm run build
-  28 |     
---------------------
-ERROR: failed to build: failed to solve: process "/bin/sh -c pnpm install" did not complete successfully: exit code: 1
-Error: Process completed with exit code 1.
+# =========================
+# Build stage
+# =========================
+FROM golang:1.23-alpine
+
+WORKDIR /src
+
+# System dependencies (CGO + SQLite + frontend tooling)
+RUN apk add --no-cache \
+    nodejs \
+    npm \
+    git \
+    bash \
+    build-base \
+    sqlite-dev
+
+# Pin pnpm to v9 (v10 has known CI build issues)
+RUN npm install -g pnpm@9
+
+# Copy entire repository (build context = repo root)
+COPY . .
+
+# -------------------------
+# Build frontend (Memos uses pnpm from repo root)
+# -------------------------
+WORKDIR /src/app/memos
+RUN pnpm install
+RUN pnpm run build
+
+# -------------------------
+# Build backend
+# -------------------------
+WORKDIR /src/app/memos
+RUN go mod download
+
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 \
+    go build -ldflags="-s -w" -o /memos_binary .
+
+# =========================
+# Runtime stage
+# =========================
+FROM alpine:latest
+
+# Runtime deps for SQLite
+RUN apk add --no-cache tzdata sqlite-libs
+ENV TZ=UTC
+
+WORKDIR /usr/local/memos
+
+# Copy compiled binary
+COPY --from=0 /memos_binary ./memos
+
+# Persistent data
+RUN mkdir -p /var/opt/memos
+VOLUME /var/opt/memos
+
+# App config
+EXPOSE 5230
+ENV MEMOS_MODE=prod
+ENV MEMOS_PORT=5230
+ENV MEMOS_DATA=/var/opt/memos
+
+# Start Memos
+ENTRYPOINT ["/usr/local/memos/memos"]
