@@ -24,7 +24,7 @@ RUN pnpm build
 ########################################
 # 2️⃣ BACKEND BUILD (Go)
 ########################################
-FROM golang:1.22-alpine AS backend-builder
+FROM golang:1.25-alpine AS backend-builder
 
 WORKDIR /src/app/memos
 
