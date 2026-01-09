@@ -8,21 +8,18 @@ WORKDIR /src
 # 1. Install system dependencies
 RUN apk add --no-cache nodejs npm git bash build-base sqlite-dev
 
-# 2. Install LATEST pnpm
+# 2. Install latest pnpm
 RUN npm install -g pnpm@latest
 
-# 3. Copy everything from the context
+# 3. COPY EVERYTHING FIRST
+# This brings the 'web' folder and 'go.mod' into /src
 COPY . .
-
-# --- DEBUG: This will show us exactly where package.json is in the logs ---
-RUN find . -name package.json
 
 # -------------------------
 # Build frontend
 # -------------------------
-# We look for the web folder. If you are building from 'app/memos', 
-# then 'web' is at the root of the context.
 WORKDIR /src/web
+# We are now in /src/web, where package.json lives
 RUN pnpm install
 RUN pnpm run build
 
@@ -30,6 +27,7 @@ RUN pnpm run build
 # Build backend
 # -------------------------
 WORKDIR /src
+# We are now in /src, where go.mod and main.go live
 RUN go mod download
 
 # Build the binary
