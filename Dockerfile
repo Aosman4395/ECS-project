@@ -1,66 +1,66 @@
-# =========================
-# Build stage
-# =========================
-FROM golang:1.25-alpine AS builder
+########################################
+# 1️⃣ FRONTEND BUILD (PNPM / Vite)
+########################################
+FROM node:20-alpine AS frontend-builder
 
-WORKDIR /src
+# Enable pnpm
+RUN corepack enable
 
-# System dependencies (CGO + SQLite + frontend tooling)
-RUN apk add --no-cache \
-    nodejs \
-    npm \
-    git \
-    bash \
-    build-base \
-    sqlite-dev
-
-# Pin pnpm to v9 (v10 has known CI issues)
-RUN npm install -g pnpm@9
-
-# Copy entire repo (build context = repo root)
-COPY . .
-
-# -------------------------
-# Build frontend
-# package.json lives here
-# -------------------------
 WORKDIR /src/app/memos/web
-RUN pnpm install
-RUN pnpm run build
 
-# -------------------------
-# Build backend
-# main.go lives in cmd/memos
-# -------------------------
+# Copy dependency manifests first (cache friendly)
+COPY app/memos/web/package.json app/memos/web/pnpm-lock.yaml ./
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy rest of frontend
+COPY app/memos/web ./
+
+# Build frontend
+RUN pnpm build
+
+
+########################################
+# 2️⃣ BACKEND BUILD (Go)
+########################################
+FROM golang:1.22-alpine AS backend-builder
+
 WORKDIR /src/app/memos
+
+# Required for CGO
+RUN apk add --no-cache git build-base
+
+# Copy Go dependency files first
+COPY app/memos/go.mod app/memos/go.sum ./
 RUN go mod download
 
+# Copy backend source
+COPY app/memos ./
+
+# Build Go binary
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 \
-    go build -ldflags="-s -w" -o /memos_binary ./cmd/memos
+    go build -ldflags="-s -w" -o /memos ./cmd/memos
 
-# =========================
-# Runtime stage
-# =========================
-FROM alpine:latest
 
-# Runtime deps for SQLite
-RUN apk add --no-cache tzdata sqlite-libs
-ENV TZ=UTC
+########################################
+# 3️⃣ FINAL RUNTIME IMAGE
+########################################
+FROM alpine:3.19
 
-WORKDIR /usr/local/memos
+WORKDIR /app
 
-# Copy compiled binary
-COPY --from=builder /memos_binary ./memos
+# Required runtime libs for CGO
+RUN apk add --no-cache ca-certificates tzdata libc6-compat
 
-# Persistent data directory
-RUN mkdir -p /var/opt/memos
-VOLUME /var/opt/memos
+# Copy Go binary
+COPY --from=backend-builder /memos /usr/local/bin/memos
 
-# App config
+# Copy built frontend into backend expected location
+COPY --from=frontend-builder /src/app/memos/web/dist /app/web/dist
+
+# Expose Memos port
 EXPOSE 5230
-ENV MEMOS_MODE=prod
-ENV MEMOS_PORT=5230
-ENV MEMOS_DATA=/var/opt/memos
 
-# Start Memos
-ENTRYPOINT ["/usr/local/memos/memos"]
+# Run Memos
+ENTRYPOINT ["memos"]
