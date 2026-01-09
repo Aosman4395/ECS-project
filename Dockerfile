@@ -3,27 +3,31 @@
 # =========================
 FROM golang:1.25-alpine AS builder
 
-# This is where we will work inside the container
 WORKDIR /src
 
 # 1. Install system dependencies
 RUN apk add --no-cache nodejs npm git bash build-base sqlite-dev
-RUN npm install -g pnpm@9
 
-# 2. Copy everything from the build context (app/memos) into /src
-# Since your context is 'app/memos', this copies main.go, go.mod, etc.
+# 2. Install LATEST pnpm
+RUN npm install -g pnpm@latest
+
+# 3. Copy everything from the context
 COPY . .
+
+# --- DEBUG: This will show us exactly where package.json is in the logs ---
+RUN find . -name package.json
 
 # -------------------------
 # Build frontend
 # -------------------------
+# We look for the web folder. If you are building from 'app/memos', 
+# then 'web' is at the root of the context.
 WORKDIR /src/web
 RUN pnpm install
 RUN pnpm run build
 
 # -------------------------
 # Build backend
-# We move back to /src because that's where the Go files are now
 # -------------------------
 WORKDIR /src
 RUN go mod download
