@@ -3,37 +3,32 @@
 # =========================
 FROM golang:1.25-alpine AS builder
 
+# This is where we will work inside the container
 WORKDIR /src
 
-# 1. Install system dependencies (CGO + SQLite + frontend tooling)
-RUN apk add --no-cache \
-    nodejs \
-    npm \
-    git \
-    bash \
-    build-base \
-    sqlite-dev
-
-# 2. Pin pnpm to v9 for stability
+# 1. Install system dependencies
+RUN apk add --no-cache nodejs npm git bash build-base sqlite-dev
 RUN npm install -g pnpm@9
 
-# 3. Copy entire repo from the root context
+# 2. Copy everything from the build context (app/memos) into /src
+# Since your context is 'app/memos', this copies main.go, go.mod, etc.
 COPY . .
 
 # -------------------------
 # Build frontend
 # -------------------------
-WORKDIR /src/app/memos/web
+WORKDIR /src/web
 RUN pnpm install
 RUN pnpm run build
 
 # -------------------------
 # Build backend
+# We move back to /src because that's where the Go files are now
 # -------------------------
-WORKDIR /src/app/memos
+WORKDIR /src
 RUN go mod download
 
-# Build the binary with CGO enabled for SQLite support
+# Build the binary
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 \
     go build -ldflags="-s -w" -o /memos_binary .
 
@@ -41,25 +36,18 @@ RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 \
 # Runtime stage
 # =========================
 FROM alpine:latest
-
-# Runtime dependencies for SQLite and Timezones
 RUN apk add --no-cache tzdata sqlite-libs
 ENV TZ=UTC
-
 WORKDIR /usr/local/memos
 
-# Copy the binary from the builder stage
 COPY --from=builder /memos_binary ./memos
 
-# Setup data directory for SQLite persistence
 RUN mkdir -p /var/opt/memos
 VOLUME /var/opt/memos
 
-# App configuration
 EXPOSE 5230
 ENV MEMOS_MODE=prod
 ENV MEMOS_PORT=5230
 ENV MEMOS_DATA=/var/opt/memos
 
-# Start the application
 ENTRYPOINT ["/usr/local/memos/memos"]
