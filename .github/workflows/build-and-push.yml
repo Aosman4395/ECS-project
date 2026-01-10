@@ -32,13 +32,18 @@ jobs:
 
       - name: Build and Push Image
         id: build-image
+        working-directory: .
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: memos
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          # Build from the root (.) so Docker finds the /app folder structure
           docker build -f Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+
+
+
 
       - name: Terraform Setup
         uses: hashicorp/setup-terraform@v3
@@ -55,3 +60,9 @@ jobs:
             --cluster memos-ecs-cluster \
             --services memos-service
              curl --fail https://tm.ahmedo.co.uk
+
+      - name: Debug build context
+        run: |
+          pwd
+          ls
+          ls app || true
