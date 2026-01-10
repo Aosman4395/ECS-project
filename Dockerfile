@@ -40,8 +40,6 @@ COPY --from=frontend-builder \
   /src/app/memos/web/dist \
   /src/app/memos/server/router/frontend/dist
 
-# Optional sanity check (remove later)
-RUN ls server/router/frontend/dist
 
 # Build Go binary
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 \
