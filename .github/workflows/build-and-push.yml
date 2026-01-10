@@ -49,8 +49,9 @@ jobs:
           terraform init
           terraform apply -auto-approve -var="image_tag=${{ github.sha }}"
 
-      - name: Health Check
+      - name: Wait for ECS & Health Check
         run: |
-          echo "Waiting for ECS to stabilize..."
-          sleep 60 
-          curl --fail https://tm.ahmedo.co.uk || exit 1
+           aws ecs wait services-stable \
+            --cluster memos-ecs-cluster \
+            --services memos-service
+             curl --fail https://tm.ahmedo.co.uk
