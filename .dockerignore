@@ -2,22 +2,16 @@
 .git
 .gitignore
 
-# Node / frontend
+# Node cache
+node_modules
 **/node_modules
 **/.pnpm-store
 **/.npm
 **/.cache
 
-# Build artifacts
-**/dist
-**/build
-**/*.log
-
 # Local env files
 .env
 .env.*
-
-# OS junk
 .DS_Store
 Thumbs.db
 
@@ -25,7 +19,7 @@ Thumbs.db
 .vscode
 .idea
 
-# Terraform (later, keep separate)
+# Terraform
 .terraform
 *.tfstate
 *.tfstate.*

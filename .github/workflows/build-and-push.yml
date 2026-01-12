@@ -39,16 +39,28 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build and Push Image
-        id: build-image
-        working-directory: ${{ github.workspace }}
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: memos
-          IMAGE_TAG: ${{ github.sha }}
+      - name: Verify repo files exist (before Docker)
         run: |
-          docker build --no-cache -f Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          pwd
+          ls
+          ls app
+          ls app/memos
+          ls app/memos/cmd
+          ls app/memos/cmd/memos
+  
+
+
+      - name: Build and Push Image
+        env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REPOSITORY: memos
+            IMAGE_TAG: ${{ github.sha }}
+        run: |
+            pwd
+            ls
+            docker build --no-cache -f Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
 
       - name: Terraform Setup
         uses: hashicorp/setup-terraform@v3
@@ -65,4 +77,4 @@ jobs:
             --cluster memos-ecs-cluster \
             --services memos-service
           curl --fail https://tm.ahmedo.co.uk
-          
+
