@@ -32,21 +32,13 @@ RUN apk add --no-cache git build-base
 COPY app/memos/go.mod app/memos/go.sum ./
 RUN go mod download
 
-# Explicit backend copies (no guessing)
-COPY app/memos/cmd ./cmd
-COPY app/memos/server ./server
-COPY app/memos/web ./web
-
-# Prove cmd/memos exists inside Docker
-RUN echo "==== DEBUG: listing cmd directory ====" && ls -R cmd
+# Single backend copy
+COPY app/memos ./
 
 # Copy frontend dist into backend expected path
 COPY --from=frontend-builder \
   /src/app/memos/web/dist \
   /src/app/memos/server/router/frontend/dist
-
-# Prove frontend dist exists
-RUN echo "==== DEBUG: listing frontend dist ====" && ls -R server/router/frontend
 
 # Build Go binary
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 \
