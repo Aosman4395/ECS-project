@@ -6,7 +6,6 @@ on:
       - main
 
 permissions:
-  id-token: write
   contents: read
 
 env:
@@ -29,11 +28,12 @@ jobs:
           ls app/memos/cmd || true
           ls app/memos/cmd/memos || true
 
-      - name: Configure AWS Credentials (OIDC)
+      - name: Configure AWS Credentials (Secrets)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::304321521963:role/github-actions-terraform
-          aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_CREDENTIALS}}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -47,20 +47,17 @@ jobs:
           ls app/memos
           ls app/memos/cmd
           ls app/memos/cmd/memos
-  
-
 
       - name: Build and Push Image
         env:
-            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REPOSITORY: memos
-            IMAGE_TAG: ${{ github.sha }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: memos
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-            pwd
-            ls
-            docker build --no-cache -f Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
+          pwd
+          ls
+          docker build --no-cache -f Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Terraform Setup
         uses: hashicorp/setup-terraform@v3
@@ -77,4 +74,3 @@ jobs:
             --cluster memos-ecs-cluster \
             --services memos-service
           curl --fail https://tm.ahmedo.co.uk
-
