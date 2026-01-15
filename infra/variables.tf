@@ -1,25 +1,25 @@
 #VPC variables
 variable "vpc_name" {
-    description = "The VPC for ECS"
-    type        = string
-    default     = "ecs_vpc"
+  description = "The VPC for ECS"
+  type        = string
+  default     = "ecs_vpc"
 }
 
 variable "vpc_cidr" {
   description = "Value of cidr"
-  type = string
-  default = "10.0.0.0/16"
+  type        = string
+  default     = "10.0.0.0/16"
 }
 
 variable "public_subnet_cidrs" {
   description = "List of public subnet CIDR blocks"
   type        = list(string)
-  default     = [   
+  default = [
     "10.0.1.0/24",
     "10.0.2.0/24"
   ]
 }
-  
+
 variable "availability_zones" {
   description = "List of availability zones"
   type        = list(string)
@@ -46,13 +46,14 @@ variable "container_name" {
 variable "image_tag" {
   description = "Docker image tag (commit SHA)"
   type        = string
+  default = "latest"
 }
 
 
 variable "container_port" {
   description = "Port on which the container listens"
   type        = number
-  default     = 5230
+  default     = 8081
 }
 variable "log_group_name" {
   description = "Name of the CloudWatch log group"

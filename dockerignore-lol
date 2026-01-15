@@ -1,0 +1,31 @@
+# Git
+.git
+.gitignore
+
+# Node / frontend
+**/node_modules
+**/.pnpm-store
+**/.npm
+**/.cache
+
+# Build artifacts
+**/dist
+/build
+**/*.log
+
+# Local env files
+.env
+.env.*
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode
+.idea
+
+# Terraform (later, keep separate)
+.terraform
+*.tfstate
+*.tfstate.*

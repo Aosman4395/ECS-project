@@ -1,8 +1,8 @@
 resource "aws_security_group" "ecs_sg" {
-    name        = var.ecs_sg_name
-    description = "Security group for ECS tasks"
-    vpc_id      = var.vpc_id
-}   
+  name        = var.ecs_sg_name
+  description = "Security group for ECS tasks"
+  vpc_id      = var.vpc_id
+}
 
 resource "aws_security_group_rule" "ecs_from_alb" {
   type                     = "ingress"
@@ -46,15 +46,15 @@ resource "aws_ecs_task_definition" "run_memos" {
       image     = var.container_image
       essential = true
 
-            portMappings = [
+      portMappings = [
         {
-          containerPort = var.container_port
-          hostPort      = var.container_port
+          containerPort = 8081
+          hostPort      = 8081
           protocol      = "tcp"
         }
       ]
 
-            logConfiguration = {
+      logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-group         = var.log_group_name
@@ -64,11 +64,11 @@ resource "aws_ecs_task_definition" "run_memos" {
       }
     }
   ])
-}   
+}
 
 resource "aws_ecs_cluster" "ecs_cluster" {
-    name = "memos-ecs-cluster"
-  
+  name = "memos-ecs-cluster"
+
 }
 
 resource "aws_ecs_service" "memos_service" {
@@ -84,17 +84,17 @@ resource "aws_ecs_service" "memos_service" {
   health_check_grace_period_seconds = 60
 
   network_configuration {
-    subnets         = var.subnet_ids
-    security_groups = [aws_security_group.ecs_sg.id]
+    subnets          = var.subnet_ids
+    security_groups  = [aws_security_group.ecs_sg.id]
     assign_public_ip = true
   }
 
   load_balancer {
     target_group_arn = var.target_group_arn
     container_name   = var.container_name
-    container_port   = var.container_port
+    container_port   = 8081
   }
-    lifecycle {
+  lifecycle {
     ignore_changes = [
       desired_count,
       task_definition,

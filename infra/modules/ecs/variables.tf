@@ -11,14 +11,14 @@ variable "container_name" {
 variable "container_port" {
   description = "Port the application listens on"
   type        = number
-    default     = 5230
+  default     = 8081
 }
 
 variable "ecs_sg_name" {
-    description = "Security group for ECS tasks"
-    type        = string
-    default = "ecs_sg"
-  
+  description = "Security group for ECS tasks"
+  type        = string
+  default     = "ecs_sg"
+
 }
 
 variable "vpc_id" {
@@ -54,11 +54,12 @@ variable "log_group_name" {
 variable "aws_region" {
   description = "AWS region where resources are deployed"
   type        = string
-  default = "us-east-1"
+  default     = "us-east-1"
 }
 
 variable "subnet_ids" {
-    description = "List of subnet IDs for the ECS service"
-    type        = list(string)
-  
+  description = "List of subnet IDs for the ECS service"
+  type        = list(string)
+
 }
+

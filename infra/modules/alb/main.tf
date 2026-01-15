@@ -8,30 +8,28 @@ resource "aws_lb" "ecs_alb" {
   tags = {
     Name = var.alb_name
   }
-  
 }
 
 resource "aws_lb_target_group" "ecs_tg" {
-    name     = "${var.alb_name}-tg"
-    target_type = "ip"
-    port     = 5230
-    protocol = "HTTP"
-    vpc_id   = var.vpc_id
-    
-    health_check {
-        path                = "/"
-        protocol            = "HTTP"
-        matcher             = "200-399"
-        interval            = 30
-        timeout             = 5
-        healthy_threshold   = 2
-        unhealthy_threshold = 2
-    }
-    
-    tags = {
-        Name = "${var.alb_name}-tg"
-    }
-  
+  name        = "${var.alb_name}-tg"
+  target_type = "ip"
+  port        = 8081
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
+
+  health_check {
+    path                = "/"
+    protocol            = "HTTP"
+    matcher             = "200-399"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+
+  tags = {
+    Name = "${var.alb_name}-tg"
+  }
 }
 
 resource "aws_lb_listener" "ecs_http" {
@@ -48,13 +46,10 @@ resource "aws_lb_listener" "ecs_http" {
       status_code = "HTTP_301"
     }
   }
-}
 
-
-data "aws_acm_certificate" "issued" {
-  domain      = "tm.ahmedo.co.uk"
-  statuses    = ["ISSUED"]
-  most_recent = true
+  depends_on = [
+    aws_lb.ecs_alb
+  ]
 }
 
 resource "aws_lb_listener" "ecs_https" {
@@ -62,11 +57,15 @@ resource "aws_lb_listener" "ecs_https" {
   port              = 443
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = data.aws_acm_certificate.issued.arn
+  certificate_arn   = var.certificate_arn
 
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.ecs_tg.arn
   }
-}
 
+  depends_on = [
+    aws_lb.ecs_alb,
+    aws_lb_target_group.ecs_tg
+  ]
+}

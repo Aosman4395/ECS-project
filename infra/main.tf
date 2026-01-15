@@ -1,13 +1,13 @@
 #VPC Module
 
 module "vpc" {
-    
-    source = "./modules/vpc"
 
-    vpc_name = var.vpc_name
-    vpc_cidr = var.vpc_cidr
-    public_subnet_cidrs = var.public_subnet_cidrs
-    availability_zones = var.availability_zones
+  source = "./modules/vpc"
+
+  vpc_name            = var.vpc_name
+  vpc_cidr            = var.vpc_cidr
+  public_subnet_cidrs = var.public_subnet_cidrs
+  availability_zones  = var.availability_zones
 }
 
 #Security Group Module
@@ -30,6 +30,8 @@ module "alb" {
   alb_security_group_ids = [module.sgs.alb_sg_id]
   vpc_id                 = module.vpc.vpc_id
 
+  certificate_arn = module.acm.certificate_arn
+
 }
 
 #IAM Module
@@ -49,7 +51,7 @@ module "ecr" {
 #acm Module
 
 module "acm" {
-  source = "./modules/acm"
+  source      = "./modules/acm"
   domain_name = "tm.ahmedo.co.uk"
 }
 
@@ -58,6 +60,10 @@ module "acm" {
 
 module "ecs" {
   source = "./modules/ecs"
+
+  depends_on = [
+    module.alb
+  ]
 
   # Networking
   vpc_id                = module.vpc.vpc_id
@@ -70,7 +76,7 @@ module "ecs" {
   # Container
   container_name  = var.container_name
   container_image = "${module.ecr.repository_url}:${var.image_tag}"
-  container_port  = var.container_port
+  container_port  = 8081
 
   # IAM
   execution_role_arn = module.iam.execution_role_arn
