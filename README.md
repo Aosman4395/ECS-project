@@ -169,4 +169,137 @@ Application running securely over HTTPS (ACM enabled)
 ![acm](screenshots/acm.png)
 
 
+## Phase 5 – AWS Infrastructure (Round 2) (IaC – Terraform)
 
+In this phase, the entire ClickOps infrastructure was destroyed and rebuilt using Terraform.  
+The goal is to make the infrastructure reproducible, version-controlled, and fully automated.
+
+---
+
+### Terraform Overview
+
+Terraform is used to manage AWS infrastructure using code instead of the AWS console.
+
+From this point onward:
+
+- No manual AWS configuration is performed.
+- Terraform is the single source of truth.
+
+---
+
+### Infrastructure Rebuilt with Terraform
+
+Terraform now manages:
+
+- VPC and networking  
+- Security groups  
+- ECR repository  
+- Application Load Balancer  
+- Target group and listeners  
+- ACM certificate  
+- IAM roles  
+- ECS cluster, task definition, and service  
+
+All components that were previously created using ClickOps are now created and managed through Terraform.
+
+---
+
+### Terraform Project Structure
+
+![repo](screenshots/repo-structure.png)
+
+### Root Files and DRY Design
+
+- **main.tf**
+  - Connects all modules together to form the full architecture.
+  - Passes outputs between modules (e.g., VPC IDs, subnet IDs, target group ARN).
+
+- **provider.tf**
+  - Defines the AWS provider, region, and provider configuration in one place.
+
+- **outputs.tf**
+  - Exposes useful values for visibility and debugging (e.g., ALB DNS name, ECR URL).
+
+- **variables.tf**
+  - Stores configurable values (region, ports, domain, image tag) to avoid hard-coding.
+
+Using **modules** and **variables** keeps the Terraform code:
+
+- DRY (Don’t Repeat Yourself)
+- Reusable
+- Easier to maintain and update
+- Cleaner and more readable
+
+### Verification
+
+After running:
+
+`terraform init`
+
+`terraform apply`  
+
+The following was verified:
+
+- All Terraform resources were created successfully with no errors.
+- VPC, security groups, ALB, ECS, ECR, IAM, and ACM resources exist in AWS.
+- ECS service is running and has healthy tasks.
+- ALB target group shows healthy targets.
+- Application is reachable through the load balancer.
+- No manual AWS configuration was required after Terraform apply.
+
+
+## Phase 6 – CI/CD Automation
+
+In this phase, deployments were fully automated using GitHub Actions.  
+Pushing to the `main` branch now triggers a full production deployment.
+
+---
+
+### Pipeline Overview
+
+The CI/CD pipeline is responsible for:
+
+- Authenticating with AWS  
+- Running Terraform to create or update infrastructure  
+- Building the Docker image  
+- Tagging the image with the Git commit SHA  
+- Pushing the image to Amazon ECR  
+- Updating the ECS service  
+- Verifying the deployment with a health check  
+
+---
+
+### Terraform State in the Pipeline
+
+When the pipeline runs Terraform, state is stored remotely.
+
+- Terraform state is kept in an S3 bucket.
+- State locking is handled using DynamoDB.
+
+This ensures:
+
+- Only one pipeline run can modify infrastructure at a time.
+- Concurrent runs do not clash.
+- Duplicate resource creation errors are avoided.
+- Terraform always knows what already exists.
+
+As a result, pipeline deployments are:
+
+- Safe from race conditions  
+- Free from duplicate resource errors  
+- Consistent on every run  
+
+---
+
+### Verification
+
+The CI/CD pipeline was verified by observing a successful end-to-end run in GitHub Actions.
+
+- Terraform completed without errors.
+- Docker image was built and pushed to ECR.
+- ECS service updated successfully.
+- Health check passed.
+
+Successful pipeline run:
+
+![pipeline](screenshots/pipeline-success.png)
