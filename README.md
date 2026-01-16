@@ -2,7 +2,7 @@
 
 This project demonstrates a production-style containerised application deployed on AWS using ECS, Terraform, and CI/CD.  
 
-The primary focus is **infrastructure, automation, and deployment**, not application development.
+The primary focus is **infrastructure, automation, and deployment**, to replicate real production workload.
 
 For the application layer, an existing lightweight open-source app is used as a deployable artifact.
 
@@ -55,15 +55,9 @@ Although `/health` is not a dedicated health endpoint, the request returned a su
 - HTTP server responds consistently when the app is running
 - App accessible locally on port **5230**
 
-**Confirms:**
-
-- Docker is the required runtime
-- The application exposes an HTTP interface
-- The app can be validated via HTTP responses
-
 ## Phase 2 – Dockerisation & Local Validation
 
-The application was successfully containerised and validated locally using Docker.
+**Goal:** Successfully containerise and validate the application locally using Docker.
 
 ### Docker Image Build
 
@@ -84,7 +78,7 @@ docker ps
 
 ## Phase 3 – Container Image Stored in Amazon ECR
 
-In this phase, the application Docker image was pushed to Amazon Elastic Container Registry (ECR), making it available for deployment using AWS ECS.
+**Goal:** Push the Docker image to Amazon Elastic Container Registry (ECR), making it available for deployment using AWS ECS.
 
 ### Amazon ECR Overview
 
@@ -106,22 +100,21 @@ The successful image push was verified using the AWS Management Console.
 
 ## Phase 4 – Manual AWS Deployment (ClickOps)
 
-In this phase, the containerised application was manually deployed to AWS using the AWS Management Console (ClickOps).  
-This phase focuses on understanding how all AWS components integrate together without Infrastructure as Code.
+**Goal:** Manually deploy the containerised application to AWS using the AWS Management Console (ClickOps). This phase focuses on understanding how all AWS components integrate together without Infrastructure as Code.
 
 ---
 
-### Tasks Completed
+### Resources created:
 
-- **Created an Amazon ECR repository**
+- **Amazon ECR repository**
   - Used to store the production Docker image.
   - The ECS service pulls the image directly from ECR at runtime.
 
-- **Created an Amazon ECS Cluster (Fargate)**
+- **Amazon ECS Cluster (Fargate)**
   - Chose **AWS Fargate** to run containers serverlessly without managing EC2 instances.
   - Provides automatic scaling and infrastructure abstraction.
 
-- **Created an ECS Task Definition**
+- **ECS Task Definition**
   - Defined container settings including:
     - Image from Amazon ECR
     - Container port `5230`
@@ -129,12 +122,12 @@ This phase focuses on understanding how all AWS components integrate together wi
     - CloudWatch logging
   - This acts as the blueprint for running the container.
 
-- **Set up an Application Load Balancer (ALB)**
+- **Application Load Balancer (ALB)**
   - Internet-facing ALB created to route external traffic to ECS tasks.
   - Listener configured for HTTP and HTTPS.
   - Target group created to forward traffic to the container on port `5230`.
 
-- **Configured Security Groups**
+- **Security Groups**
   - Inbound rules allow:
     - HTTP (80)
     - HTTPS (443)
@@ -171,8 +164,7 @@ Application running securely over HTTPS (ACM enabled)
 
 ## Phase 5 – AWS Infrastructure (Round 2) (IaC – Terraform)
 
-In this phase, the entire ClickOps infrastructure was destroyed and rebuilt using Terraform.  
-The goal is to make the infrastructure reproducible, version-controlled, and fully automated.
+**Goal:** Rebuild the entire ClickOps infrastructure using Terraform. The goal is to make the infrastructure reproducible, version-controlled, and fully automated.
 
 ---
 
@@ -186,6 +178,15 @@ From this point onward:
 - Terraform is the single source of truth.
 
 ---
+
+### Modules and Variables
+
+Using **modules** and **variables** keeps the Terraform code:
+
+- DRY (Don’t Repeat Yourself)
+- Reusable
+- Easier to maintain and update
+- Cleaner and more readable
 
 ### Infrastructure Rebuilt with Terraform
 
@@ -204,9 +205,6 @@ All components that were previously created using ClickOps are now created and m
 
 ---
 
-### Terraform Project Structure
-
-![repo](screenshots/repo-structure.png)
 
 ### Root Files and DRY Design
 
@@ -223,12 +221,10 @@ All components that were previously created using ClickOps are now created and m
 - **variables.tf**
   - Stores configurable values (region, ports, domain, image tag) to avoid hard-coding.
 
-Using **modules** and **variables** keeps the Terraform code:
+### Terraform Project Structure
 
-- DRY (Don’t Repeat Yourself)
-- Reusable
-- Easier to maintain and update
-- Cleaner and more readable
+![repo](screenshots/repo-structure.png)
+
 
 ### Verification
 
@@ -250,7 +246,8 @@ The following was verified:
 
 ## Phase 6 – CI/CD Automation
 
-In this phase, deployments were fully automated using GitHub Actions.  
+**Goal:** Fully automate deployments using GitHub Actions.  
+
 Pushing to the `main` branch now triggers a full production deployment.
 
 ---
@@ -303,3 +300,34 @@ The CI/CD pipeline was verified by observing a successful end-to-end run in GitH
 Successful pipeline run:
 
 ![pipeline](screenshots/pipeline-success.png)
+
+
+## Conclusion
+
+This project demonstrates a full production-style cloud deployment using modern DevOps practices.
+
+The application is now:
+
+- Containerised with Docker  
+- Stored in Amazon ECR  
+- Deployed on ECS using Fargate  
+- Exposed through an Application Load Balancer  
+- Secured using HTTPS with ACM  
+- Automated using Terraform and GitHub Actions  
+
+The entire infrastructure can be recreated from scratch using Terraform, and every deployment is handled automatically through the CI/CD pipeline.
+
+This project proves:
+
+- Strong understanding of AWS core services  
+- Infrastructure as Code using Terraform  
+- CI/CD automation using GitHub Actions  
+- Secure HTTPS configuration using ACM  
+- Real-world troubleshooting and debugging skills  
+
+Final result:  
+The application is live, stable, and securely accessible over HTTPS.
+
+Application running with ACM (HTTPS enabled):
+
+![acm-app](screenshots/acm-app.png)
