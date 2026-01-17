@@ -331,3 +331,9 @@ The application is live, stable, and securely accessible over HTTPS.
 Application running with ACM (HTTPS enabled):
 
 ![acm-app](screenshots/acm-app.png)
+
+## Architecture
+
+Production AWS architecture using ECS Fargate, ALB, Terraform, and GitHub Actions in us-east-1.
+
+![Architecture](screenshots/AWS_Architechture.png)
