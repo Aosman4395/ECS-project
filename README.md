@@ -1,22 +1,35 @@
-# Project Overview
+## Project Overview
 
-This project demonstrates a production-style containerised application deployed on AWS using ECS, Terraform, and CI/CD.  
+This project represents a production-style cloud infrastructure engagement for a client requiring a secure, scalable, and automated deployment of a containerised web application on AWS.
 
-The primary focus is **infrastructure, automation, and deployment**, to replicate real production workload.
+The objective was to design and implement a resilient ECS-based architecture using Infrastructure as Code, enabling repeatable deployments, environment consistency, and CI/CD-driven automation.
 
-For the application layer, an existing lightweight open-source app is used as a deployable artifact.
+The focus of this engagement included:
+
+- Designing and provisioning scalable, secure AWS infrastructure
+- Implementing reusable Terraform modules for clean Infrastructure as Code
+- Automating build and deployment workflows using CI/CD pipelines
+- Ensuring high availability through load balancing and networking best practices
+- Following production-style cloud architecture patterns and operational standards
+
+The application serves as a representative production workload, allowing the primary emphasis to remain on infrastructure design, and automation.
 
 ---
 
-## Application Choice
+## Application Selection
 
-**App:** Memos  
+**Application:** Memos  
 
-**Reason for choice:**  
+The client required a lightweight, container-ready application to validate the cloud infrastructure design and CI/CD pipeline.
 
-Memos is a simple, self-hosted application with minimal configuration and predictable HTTP behaviour, making it well-suited for an infrastructure-focused project.
+Memos was selected due to:
 
-The application is distributed as a Docker image, which aligns well with container-first deployment workflows.
+- Predictable HTTP behaviour suitable for load-balanced environments
+- Container-first distribution model
+- Minimal configuration overhead
+- Suitability for demonstrating scalable ECS deployments
+
+The application acts as the production workload, while the core value of the engagement lies in the infrastructure architecture, automation strategy, and deployment workflow.
 
 ---
 
