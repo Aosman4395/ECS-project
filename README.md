@@ -4,7 +4,7 @@ This project represents a production-style cloud infrastructure engagement for a
 
 The objective was to design and implement a resilient ECS-based architecture using Infrastructure as Code, enabling repeatable deployments, environment consistency, and CI/CD-driven automation.
 
-The focus of this engagement included:
+The focus of this project included:
 
 - Designing and provisioning scalable, secure AWS infrastructure
 - Implementing reusable Terraform modules for clean Infrastructure as Code
@@ -12,24 +12,27 @@ The focus of this engagement included:
 - Ensuring high availability through load balancing and networking best practices
 - Following production-style cloud architecture patterns and operational standards
 
-The application serves as a representative production workload, allowing the primary emphasis to remain on infrastructure design, and automation.
-
 ---
 
 ## Application Selection
 
 **Application:** Memos  
 
-The client required a lightweight, container-ready application to validate the cloud infrastructure design and CI/CD pipeline.
+Memos is a lightweight, self-hosted note-taking application that allows users to create, organise, and store short notes. It’s often used as a personal knowledge base or internal tool for keeping track of information.
 
-Memos was selected due to:
+---
 
-- Predictable HTTP behaviour suitable for load-balanced environments
-- Container-first distribution model
-- Minimal configuration overhead
-- Suitability for demonstrating scalable ECS deployments
+## Architecture
 
-The application acts as the production workload, while the core value of the engagement lies in the infrastructure architecture, automation strategy, and deployment workflow.
+Production AWS architecture using ECS Fargate, ALB, Terraform, and GitHub Actions in us-east-1.
+
+![Architecture](screenshots/AWS_Architechture.png)
+
+---
+
+### Terraform Project Structure
+
+![repo](screenshots/repo-structure.png)
 
 ---
 
@@ -234,10 +237,6 @@ All components that were previously created using ClickOps are now created and m
 - **variables.tf**
   - Stores configurable values (region, ports, domain, image tag) to avoid hard-coding.
 
-### Terraform Project Structure
-
-![repo](screenshots/repo-structure.png)
-
 
 ### Verification
 
@@ -345,8 +344,4 @@ Application running with ACM (HTTPS enabled):
 
 ![acm-app](screenshots/acm-app.png)
 
-## Architecture
 
-Production AWS architecture using ECS Fargate, ALB, Terraform, and GitHub Actions in us-east-1.
-
-![Architecture](screenshots/AWS_Architechture.png)
