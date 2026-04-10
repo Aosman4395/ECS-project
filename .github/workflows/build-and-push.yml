@@ -36,6 +36,10 @@ jobs:
           terraform init
           terraform apply -auto-approve -var="image_tag=${{ github.sha }}"
 
+      - name: Terraform Plan
+        working-directory: ./infra
+        run: terraform plan -var="image_tag=${{ github.sha }}"
+
       # ---- THEN ECR + DOCKER ----
       - name: Login to Amazon ECR
         id: login-ecr
