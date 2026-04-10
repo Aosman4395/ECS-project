@@ -1,5 +1,5 @@
 
-# 1️⃣ FRONTEND BUILD (PNPM)
+# FRONTEND BUILD (PNPM)
 
 FROM node:20-alpine AS frontend-builder
 
@@ -19,7 +19,7 @@ RUN pnpm build
 
 
 
-# 2️⃣ BACKEND BUILD (Go)
+# BACKEND BUILD (Go)
 
 
 FROM golang:1.25-alpine AS backend-builder
@@ -46,7 +46,7 @@ RUN CGO_ENABLED=1 GOOS=linux GOARCH=amd64 \
     go build -ldflags="-s -w" -o /memos ./cmd/memos
 
 
-# 3️⃣ FINAL RUNTIME IMAGE
+# Multistage build
 
 FROM alpine:3.19
 
