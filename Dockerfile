@@ -55,8 +55,17 @@ WORKDIR /app
 # Runtime deps for CGO
 RUN apk add --no-cache ca-certificates tzdata libc6-compat
 
+# Create non-root user
+RUN adduser -D appuser
+
 # Copy backend binary
 COPY --from=backend-builder /memos /usr/local/bin/memos
+
+# Change ownership to non-root user
+RUN chown appuser:appuser /usr/local/bin/memos
+
+# Switch to non-root user
+USER appuser
 
 # Expose Memos port
 EXPOSE 5230
