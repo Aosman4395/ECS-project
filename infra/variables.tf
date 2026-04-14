@@ -46,7 +46,7 @@ variable "container_name" {
 variable "image_tag" {
   description = "Docker image tag (commit SHA)"
   type        = string
-  default = "latest"
+  default     = "latest"
 }
 
 

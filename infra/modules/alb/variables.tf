@@ -1,18 +1,18 @@
 variable "alb_name" {
-    description = "The name of the Application Load Balancer"
-    type        = string    
-    default = "memos-alb"
-  
+  description = "The name of the Application Load Balancer"
+  type        = string
+  default     = "memos-alb"
+
 }
 
 variable "alb_security_group_ids" {
-    description = "The security group IDs to associate with the ALB"
-    type        = list(string)  
+  description = "The security group IDs to associate with the ALB"
+  type        = list(string)
 }
 
 variable "public_subnet_ids" {
-    description = "The public subnet IDs for the ALB"
-    type        = list(string)   
+  description = "The public subnet IDs for the ALB"
+  type        = list(string)
 }
 
 variable "vpc_id" {
