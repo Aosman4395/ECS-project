@@ -14,3 +14,9 @@ variable "s3_name" {
   type        = string
   default     = "ahamed-ecs-tf-state-2026"
 }
+
+variable "domain_name" {
+  description = "Primary domain name for the certificate"
+  type        = string
+  default     = "tm.ahmedo.co.uk"
+}

@@ -58,7 +58,6 @@ variable "container_name" {
 variable "image_tag" {
   description = "Docker image tag (commit SHA)"
   type        = string
-  default     = "latest"
 }
 
 
@@ -77,4 +76,10 @@ variable "ecr_repository_url" {
   description = "ECR repository URL for the application image"
   type        = string
   default     = "123456789012.dkr.ecr.eu-west-2.amazonaws.com/my-app-repo"
+}
+
+variable "certificate_arn" {
+  description = "ARN of the ACM certificate for the ALB"
+  type        = string
+  default     = "arn:aws:acm:eu-west-2:409987738946:certificate/1f3fe061-1a30-47d6-8a39-5aba2e86c8c1"
 }

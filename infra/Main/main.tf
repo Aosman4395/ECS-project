@@ -30,7 +30,7 @@ module "alb" {
   alb_security_group_ids = [module.sgs.alb_sg_id]
   vpc_id                 = module.vpc.vpc_id
 
-  certificate_arn = module.acm.certificate_arn
+  certificate_arn = var.certificate_arn
 
 }
 
@@ -38,13 +38,6 @@ module "alb" {
 
 module "iam" {
   source = "../modules/iam"
-}
-
-#acm Module
-
-module "acm" {
-  source      = "../modules/acm"
-  domain_name = "tm.ahmedo.co.uk"
 }
 
 
