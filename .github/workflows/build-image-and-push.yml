@@ -113,7 +113,7 @@ jobs:
 
       - name: Terraform Apply
         working-directory: ./infra/Main
-        run: terraform apply -auto-approve tfplan -lock-timeout=5m
+        run: terraform apply -auto-approve -lock-timeout=5m tfplan 
 
         
   verify-deploy:
