@@ -74,12 +74,12 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ./infra/Main
-        run: terraform plan -var="image_tag=${{ github.sha }}" -lock-timeout=5m
+        run: terraform plan -out=tfplan -var="image_tag=${{ github.sha }}" -lock-timeout=5m
 
       - name: Upload Plan
         uses: actions/upload-artifact@v4
         with:
-          name: tfplan
+          name: terraform-plan
           path: ./infra/Main/tfplan
 
   terraform-apply:
