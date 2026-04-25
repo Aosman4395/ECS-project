@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: terraform-production
+  cancel-in-progress: false
+
 permissions:
   contents: read
   id-token: write
@@ -70,7 +74,7 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ./infra/Main
-        run: terraform plan -var="image_tag=${{ github.sha }}"
+        run: terraform plan -var="image_tag=${{ github.sha }}" -lock-timeout=5m
 
       - name: Upload Plan
         uses: actions/upload-artifact@v4
@@ -109,7 +113,7 @@ jobs:
 
       - name: Terraform Apply
         working-directory: ./infra/Main
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply -auto-approve tfplan -lock-timeout=5m
 
         
   verify-deploy:
