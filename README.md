@@ -11,7 +11,6 @@
 - [Phase 4 – Manual AWS Deployment (ClickOps)](#phase-4--manual-aws-deployment-clickops)
 - [Phase 5 – AWS Infrastructure (Round 2) (IaC – Terraform)](#phase-5--aws-infrastructure-round-2-iac--terraform)
 - [Phase 6 – CI/CD Automation](#phase-6--cicd-automation)
-- [Improvements & Key Learnings](#improvements--key-learnings)
 - [Conclusion](#conclusion)
 
 
