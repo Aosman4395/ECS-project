@@ -34,11 +34,12 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+        
 
       - name: Build and Push Image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: ${{ github.sha }}-${{ github.run_id }}
         run: |
           docker build --no-cache -f Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -74,7 +75,7 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ./infra/Main
-        run: terraform plan -out=tfplan -var="image_tag=${{ github.sha }}" -lock-timeout=5m
+        run: terraform plan -out=tfplan -var="image_tag=${{ github.sha }}-${{ github.run_id }}" -lock-timeout=5m
 
       - name: Upload Plan
         uses: actions/upload-artifact@v4
