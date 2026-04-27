@@ -24,7 +24,7 @@ Memos is a lightweight, self-hosted note-taking application that allows users to
 
 ## Project Demo
 
-![demo](https://www.loom.com/share/411a7d5535a848fb8be2147108ad54e4)
+![demo](screenshots/domain.png)(https://www.loom.com/share/411a7d5535a848fb8be2147108ad54e4)
 
 ## Architecture
 
