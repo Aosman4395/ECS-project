@@ -1,3 +1,20 @@
+## 📚 Contents
+
+- [Project Overview](#project-overview)
+- [Application Selection](#application-selection)
+- [Project Demo](#project-demo)
+- [Architecture](#architecture)
+- [Terraform Project Structure](#terraform-project-structure)
+- [Phase 1 – Local Application Verification](#phase-1--local-application-verification)
+- [Phase 2 – Dockerisation & Local Validation](#phase-2--dockerisation--local-validation)
+- [Phase 3 – Container Image Stored in Amazon ECR](#phase-3--container-image-stored-in-amazon-ecr)
+- [Phase 4 – Manual AWS Deployment (ClickOps)](#phase-4--manual-aws-deployment-clickops)
+- [Phase 5 – AWS Infrastructure (Round 2) (IaC – Terraform)](#phase-5--aws-infrastructure-round-2-iac--terraform)
+- [Phase 6 – CI/CD Automation](#phase-6--cicd-automation)
+- [Improvements & Key Learnings](#improvements--key-learnings)
+- [Conclusion](#conclusion)
+
+
 ## Project Overview
 
 This project represents a production-style cloud infrastructure engagement for a client requiring a secure, scalable, and automated deployment of a containerised web application on AWS.
