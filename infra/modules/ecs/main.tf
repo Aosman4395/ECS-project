@@ -94,12 +94,9 @@ resource "aws_ecs_service" "memos_service" {
     container_name   = var.container_name
     container_port   = 8081
   }
-  lifecycle {
-    ignore_changes = [
-      desired_count,
-      task_definition,
-    ]
-
-  }
+lifecycle {
+  ignore_changes = [
+    desired_count,
+  ]
 }
-
+}
