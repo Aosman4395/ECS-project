@@ -22,6 +22,10 @@ Memos is a lightweight, self-hosted note-taking application that allows users to
 
 ---
 
+## Project Demo
+
+![demo](screenshots/Video-Project.mp4)
+
 ## Architecture
 
 Production AWS architecture using ECS Fargate, ALB, Terraform, and GitHub Actions in us-east-1.
