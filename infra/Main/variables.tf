@@ -75,7 +75,7 @@ variable "log_group_name" {
 variable "ecr_repository_url" {
   description = "ECR repository URL for the application image"
   type        = string
-  default     = "123456789012.dkr.ecr.eu-west-2.amazonaws.com/my-app-repo"
+  default     = "409987738946.dkr.ecr.eu-west-2.amazonaws.com/memos"
 }
 
 variable "certificate_arn" {
