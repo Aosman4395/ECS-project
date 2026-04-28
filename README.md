@@ -53,24 +53,24 @@ Production AWS architecture using ECS Fargate, ALB, Terraform, and GitHub Action
 ### Project Structure
 
 ```
-.
+
 ├── .github/
 │ └── workflows/
-│ └── build-image-and-push.yml  `CI/CD pipeline (build, plan, apply, verify)`
+│ └── build-image-and-push.yml  # CI/CD pipeline
 │
-├── app/ `Application source code`
+├── app/ # Application source code
 │
 ├── infra/
-│ ├── bootstrap/ `One-time setup (S3 backend, IAM OIDC)`
-│ ├── Main/ `Core Terraform configuration`
-│ └── modules/ `Reusable Terraform modules`
+│ ├── bootstrap/ # One-time setup 
+│ ├── Main/ # Core Terraform configuration
+│ └── modules/ # Reusable Terraform modules
 │
-├── screenshots/  `Project verification images`
+├── screenshots/  #Project verification images
 │
-├── Dockerfile `Container build configuration`
-├── .dockerignore `Docker ignore rules`
-├── .gitignore `Git ignore rules`
-└── README.md `Project documentation`
+├── Dockerfile # Container build configuration
+├── .dockerignore # Docker ignore rules
+├── .gitignore # Git ignore rules
+└── README.md # Project documentation
 
 ```
 ---
