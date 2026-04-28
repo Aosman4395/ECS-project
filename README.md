@@ -52,6 +52,7 @@ Production AWS architecture using ECS Fargate, ALB, Terraform, and GitHub Action
 
 ### Project Structure
 
+```
 .
 ├── .github/
 │ └── workflows/
@@ -71,6 +72,7 @@ Production AWS architecture using ECS Fargate, ALB, Terraform, and GitHub Action
 ├── .gitignore `Git ignore rules`
 └── README.md `Project documentation`
 
+```
 ---
 
 ## Phase 1 – Local Application Verification
