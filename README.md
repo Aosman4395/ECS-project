@@ -96,12 +96,6 @@ The application was accessed successfully via a web browser at:
 
 http://localhost:5230
 
-An HTTP request was also made to a non-specific path to confirm the server responds when running:
-
-curl http://localhost:5230/health
-
-Although `/health` is not a dedicated health endpoint, the request returned a successful HTTP response, confirming that the application server is running and responding to requests.
-
 ### Result
 
 - Application starts successfully in a Docker container
@@ -139,11 +133,18 @@ Amazon ECR is used as a private container registry to securely store Docker imag
 
 Storing the image in ECR allows ECS to pull and run the application independently of the local development environment.
 
-### Image Tag Used
+### Image Tag Used  
 
-The image was pushed using the **`latest`** tag.
+The image is tagged using the **Git commit SHA**.
 
-This tag represents the **current stable version** of the application for this project and will be referenced in the ECS task definition in the next phase.
+Each build generates a unique, immutable image tag based on the commit, ensuring:
+
+- Every deployment is traceable to a specific code change  
+- No risk of overwriting previous images  
+- Easy rollback to a known working version  
+
+This image tag is dynamically passed to the ECS task definition during deployment via the CI/CD pipeline.
+
 
 ### Verification (AWS Console)
 
@@ -160,41 +161,12 @@ The successful image push was verified using the AWS Management Console.
 ### Resources created:
 
 - **Amazon ECR repository**
-  - Used to store the production Docker image.
-  - The ECS service pulls the image directly from ECR at runtime.
-
 - **Amazon ECS Cluster (Fargate)**
-  - Chose **AWS Fargate** to run containers serverlessly without managing EC2 instances.
-  - Provides automatic scaling and infrastructure abstraction.
-
 - **ECS Task Definition**
-  - Defined container settings including:
-    - Image from Amazon ECR
-    - Container port `5230`
-    - CPU and memory allocation
-    - CloudWatch logging
-  - This acts as the blueprint for running the container.
-
 - **Application Load Balancer (ALB)**
-  - Internet-facing ALB created to route external traffic to ECS tasks.
-  - Listener configured for HTTP and HTTPS.
-  - Target group created to forward traffic to the container on port `5230`.
-
 - **Security Groups**
-  - Inbound rules allow:
-    - HTTP (80)
-    - HTTPS (443)
-  - Ensures public access while maintaining controlled network boundaries.
-
 - **Configured DNS using Namecheap (instead of Route 53)**
-  - An existing domain was already managed via **Namecheap**.
-  - A **CNAME record** (`tm.<domain>`) was created pointing to the ALB DNS name.
-  - This replaces the need for Route 53 while achieving the same result.
-
 - **Attached an ACM Certificate for HTTPS**
-  - AWS Certificate Manager (ACM) used to provision a TLS certificate.
-  - Certificate attached to the ALB HTTPS listener.
-  - Enables secure HTTPS access to the application.
 
 ---
 
