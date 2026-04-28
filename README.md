@@ -50,9 +50,26 @@ Production AWS architecture using ECS Fargate, ALB, Terraform, and GitHub Action
 
 ---
 
-### Terraform Project Structure
+### Project Structure
 
-![repo](screenshots/repo-structure.png)
+.
+├── .github/
+│ └── workflows/
+│ └── build-image-and-push.yml  `CI/CD pipeline (build, plan, apply, verify)`
+│
+├── app/ `Application source code`
+│
+├── infra/
+│ ├── bootstrap/ `One-time setup (S3 backend, IAM OIDC)`
+│ ├── Main/ `Core Terraform configuration`
+│ └── modules/ `Reusable Terraform modules`
+│
+├── screenshots/  `Project verification images`
+│
+├── Dockerfile `Container build configuration`
+├── .dockerignore `Docker ignore rules`
+├── .gitignore `Git ignore rules`
+└── README.md `Project documentation`
 
 ---
 
@@ -215,6 +232,27 @@ From this point onward:
 
 ---
 
+### Bootstrap Layer (Foundation)
+
+Before provisioning the main infrastructure, a bootstrap phase was introduced to solve the initial dependency problem.
+
+Certain resources must exist before Terraform and CI/CD can run properly.
+
+The bootstrap layer was applied once manually and is responsible for:
+
+- Creating the S3 bucket for Terraform remote state  
+- Enabling encryption and versioning  
+- Creating IAM roles for GitHub Actions (OIDC)  
+- Establishing trust between GitHub and AWS  
+
+This ensures all future Terraform runs are:
+
+- Remote and consistent  
+- Secure (no long-lived credentials)  
+- Ready for CI/CD automation  
+
+![bootstrap(screenshots/bootsrap.png)]
+
 ### Modules and Variables
 
 Using **modules** and **variables** keeps the Terraform code:
@@ -223,6 +261,21 @@ Using **modules** and **variables** keeps the Terraform code:
 - Reusable
 - Easier to maintain and update
 - Cleaner and more readable
+
+### Root Files and DRY Design
+
+- **main.tf**
+  - Connects all modules together to form the full architecture.
+  - Passes outputs between modules
+
+- **provider.tf**
+  - Defines the AWS provider, region,backend and provider configuration in one place.
+
+- **outputs.tf**
+  - Exposes useful values for visibility and debugging
+
+- **variables.tf**
+  - Stores configurable valueso avoid hard-coding
 
 ### Infrastructure Rebuilt with Terraform
 
@@ -242,92 +295,76 @@ All components that were previously created using ClickOps are now created and m
 ---
 
 
-### Root Files and DRY Design
+### Verification  
 
-- **main.tf**
-  - Connects all modules together to form the full architecture.
-  - Passes outputs between modules (e.g., VPC IDs, subnet IDs, target group ARN).
+The bootstrap layer was applied once manually to provision foundational resources required for Terraform and CI/CD.
 
-- **provider.tf**
-  - Defines the AWS provider, region, and provider configuration in one place.
-
-- **outputs.tf**
-  - Exposes useful values for visibility and debugging (e.g., ALB DNS name, ECR URL).
-
-- **variables.tf**
-  - Stores configurable values (region, ports, domain, image tag) to avoid hard-coding.
-
-
-### Verification
-
-After running:
-
-`terraform init`
-
-`terraform apply`  
+Following this, all infrastructure changes are executed through the CI/CD pipeline.
 
 The following was verified:
 
-- All Terraform resources were created successfully with no errors.
-- VPC, security groups, ALB, ECS, ECR, IAM, and ACM resources exist in AWS.
-- ECS service is running and has healthy tasks.
-- ALB target group shows healthy targets.
-- Application is reachable through the load balancer.
-- No manual AWS configuration was required after Terraform apply.
+- Bootstrap successfully created the Terraform backend and IAM roles  
+- Terraform configuration is valid and ready for automated execution  
+- VPC, security groups, ALB, ECS, ECR, IAM, and ACM resources are defined and managed through Terraform  
+- ECS cluster and service configuration is correctly set up  
 
+Full deployment, infrastructure updates, and application verification are handled in the next phase via the CI/CD pipeline.
 
-## Phase 6 – CI/CD Automation
+## Phase 6 – CI/CD Automation  
 
 **Goal:** Fully automate deployments using GitHub Actions.  
 
-Pushing to the `main` branch now triggers a full production deployment.
+Pushing to the `main` branch now triggers a full production deployment pipeline.
 
 ---
 
-### Pipeline Overview
+### Pipeline Overview  
 
 The CI/CD pipeline is responsible for:
 
-- Authenticating with AWS  
-- Running Terraform to create or update infrastructure  
-- Building the Docker image  
-- Tagging the image with the Git commit SHA  
-- Pushing the image to Amazon ECR  
-- Updating the ECS service  
+- Authenticating with AWS using OIDC  
+- Building and pushing the Docker image to Amazon ECR  
+- Running Terraform plan to preview infrastructure changes  
+- Applying Terraform changes to update infrastructure  
+- Updating the ECS service with the new image  
 - Verifying the deployment with a health check  
 
 ---
 
-### Terraform State in the Pipeline
+### Pipeline Flow  
 
-When the pipeline runs Terraform, state is stored remotely.
+The pipeline is split into clear stages to improve reliability and visibility:
 
-- Terraform state is kept in an S3 bucket.
-- State locking is handled using DynamoDB.
+1. **build-and-push**  
+   - Builds Docker image  
+   - Tags image using Git commit SHA  
+   - Pushes image to Amazon ECR  
 
-This ensures:
+2. **terraform-plan**  
+   - Runs `terraform plan`  
+   - Shows infrastructure changes before applying  
+   - Uses `-lock-timeout=5m` to handle state lock contention  
 
-- Only one pipeline run can modify infrastructure at a time.
-- Concurrent runs do not clash.
-- Duplicate resource creation errors are avoided.
-- Terraform always knows what already exists.
+3. **terraform-apply**  
+   - Applies infrastructure changes  
+   - Updates ECS service with new image  
 
-As a result, pipeline deployments are:
-
-- Safe from race conditions  
-- Free from duplicate resource errors  
-- Consistent on every run  
+4. **verify-deploy**  
+   - Waits for ECS service to stabilise  
+   - Runs health check against application endpoint  
+   - Fails pipeline if deployment is unhealthy  
 
 ---
 
-### Verification
+### Verification  
 
-The CI/CD pipeline was verified by observing a successful end-to-end run in GitHub Actions.
+The CI/CD pipeline was verified through a successful end-to-end deployment run:
 
-- Terraform completed without errors.
-- Docker image was built and pushed to ECR.
-- ECS service updated successfully.
-- Health check passed.
+- Docker image built and pushed to ECR  
+- Terraform plan executed successfully  
+- Infrastructure applied without errors  
+- ECS service updated  
+- Health check passed  
 
 Successful pipeline run:
 
